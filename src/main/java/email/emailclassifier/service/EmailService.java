@@ -5,6 +5,7 @@ import email.emailclassifier.repository.EmailRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -12,11 +13,9 @@ import java.util.stream.Collectors;
 public class EmailService {
 
     private final EmailRepository emailRepository;
-    private final ClassifierService classifierService;;
 
-    public EmailService(EmailRepository emailRepository, ClassifierService classifierService) {
+    public EmailService(EmailRepository emailRepository) {
         this.emailRepository = emailRepository;
-        this.classifierService = classifierService;
     }
 
     public Map<String,Long> classifyPerSender(){
@@ -27,4 +26,5 @@ public class EmailService {
                 Collectors.counting())
         );
     }
+
 }

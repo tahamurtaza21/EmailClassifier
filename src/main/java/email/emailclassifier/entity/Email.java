@@ -19,7 +19,8 @@ public class Email {
     private String sender;
     private String subject;
 
-    @Column(length = 5000)
+    @Lob
+    @Column(columnDefinition = "CLOB")
     private String body;
 
     private String classification;
