@@ -1,9 +1,10 @@
 package email.emailclassifier.controller;
 
-import org.springframework.ui.Model;
-import email.emailclassifier.service.EmailService;
+import email.emailclassifier.service.EmailFetcherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Map;
@@ -11,21 +12,22 @@ import java.util.Map;
 @Controller
 public class EmailController {
 
-    private final EmailService emailService;
+    private final EmailFetcherService emailFetcherService;
 
     @Autowired
-    public EmailController(EmailService emailService) {
-        this.emailService = emailService;
+    public EmailController(EmailFetcherService emailFetcherService) {
+        this.emailFetcherService = emailFetcherService;
     }
 
     @GetMapping("/")
-    public String index(Model model){
+    public String index() {
         return "index";
     }
 
-    @GetMapping("/emails/counts/senders")
-    public String getSenderCountsView(Model model){
-        model.addAttribute("senderCounts",emailService.classifyPerSender());
+    @GetMapping("/fetch")
+    public String fetchEmails(OAuth2AuthenticationToken auth, Model model) {
+        Map<String, Long> senderCounts = emailFetcherService.fetchSenderCounts(auth);
+        model.addAttribute("senderCounts", senderCounts);
         return "index";
     }
 }

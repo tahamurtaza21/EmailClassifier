@@ -17,6 +17,7 @@ public class Email {
     private Long id;
 
     private String sender;
+
     private String subject;
 
     @Lob

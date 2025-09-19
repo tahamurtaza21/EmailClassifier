@@ -1,27 +1,40 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Email Classifier</title>
     <meta charset="UTF-8">
     <style>
         body { font-family: Arial, sans-serif; margin: 2rem; }
         button { padding: 0.5rem 1rem; font-size: 1rem; }
-        table { margin-top: 1rem; border-collapse: collapse; width: 50%; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
+        table { margin-top: 1rem; border-collapse: collapse; width: 60%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background: #f4f4f4; }
     </style>
 </head>
 <body>
 <h1>Email Classifier</h1>
-<form method="get" action="/emails/counts/senders">
-    <button type="submit">Show Sender Counts</button>
-</form>
 
+<!-- Show login button if user not authenticated -->
+<div sec:authorize="!isAuthenticated()">
+    <form action="/oauth2/authorization/google" method="get">
+        <button type="submit">Login with Google</button>
+    </form>
+</div>
+
+<!-- Show fetch button only if user is logged in -->
+<div sec:authorize="isAuthenticated()">
+    <form method="get" action="/fetch">
+        <button type="submit">Fetch Emails</button>
+    </form>
+</div>
+
+<!-- Table for sender domain counts -->
 <div th:if="${senderCounts}">
-    <h2>Sender Counts</h2>
+    <h2>Sender Domain Counts (sorted by frequency)</h2>
     <table>
         <tr>
-            <th>Sender</th>
+            <th>Domain</th>
             <th>Count</th>
         </tr>
         <tr th:each="entry : ${senderCounts}">
