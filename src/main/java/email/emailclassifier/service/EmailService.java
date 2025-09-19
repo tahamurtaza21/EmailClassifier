@@ -18,13 +18,24 @@ public class EmailService {
         this.emailRepository = emailRepository;
     }
 
-    public Map<String,Long> classifyPerSender(){
-        List<Email> last1000 = emailRepository.findAllByOrderByReceivedAtDesc(PageRequest.of(0, 1000));
+    public Map<String, Long> classifyPerSender() {
+        List<Email> last1000 = emailRepository.findAllByOrderByReceivedAtDesc();
 
-        return last1000.stream().collect(Collectors.groupingBy(
-                Email::getSender,
-                Collectors.counting())
-        );
+        return last1000.stream()
+                .collect(Collectors.groupingBy(
+                        Email::getSender,
+                        Collectors.counting()
+                ))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed()) // sort by count desc
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new // preserve order
+                ));
     }
+
 
 }

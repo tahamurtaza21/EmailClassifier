@@ -4,6 +4,7 @@ import email.emailclassifier.entity.Email;
 import email.emailclassifier.repository.EmailRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,10 @@ public class EmailFetcherService {
 
         Message[] messages = inbox.getMessages();
 
+        FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.ENVELOPE);
+        inbox.fetch(messages, fp);
+
         extractEmailsAndSave(messages);
 
         inbox.close(false);
@@ -66,15 +71,23 @@ public class EmailFetcherService {
         List<Email> emails = new ArrayList<Email>();
 
         for (Message message : messages) {
-            String sender = message.getFrom()[0].toString();
-//            String subject = message.getSubject();
-//            String body = message.getContent().toString();
+            Address[] froms = message.getFrom();
+            if(froms != null && froms.length > 0){
+                InternetAddress address = (InternetAddress) froms[0];
+                String emailAddr = address.getAddress();
+                String domain = null;
 
-            Email email = Email.builder()
-                    .sender(sender)
-                    .build();
+                if (emailAddr != null && emailAddr.contains("@"))
+                {
+                    domain = emailAddr.substring(emailAddr.indexOf("@") + 1);
+                }
 
-            emails.add(email);
+                Email email = Email.builder()
+                        .sender(domain)
+                        .build();
+
+                emails.add(email);
+            }
         }
 
         emailRepository.saveAll(emails);
